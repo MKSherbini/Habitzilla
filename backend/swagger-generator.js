@@ -1,7 +1,5 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 const routeController = require("./controllers/routeController");
-const { db } = require("./models/user");
 
 const doc = {
     info: {
@@ -23,16 +21,6 @@ const _ = require('lodash'),
     path = __dirname + '/routes',
     indexPath = path + '/index.js';
 
-//Connect to DB
-(async () => {
-    await mongoose.connect(process.env.DATABASE_URL);
-    await updateIndexRoute();
-    setTimeout(async () => await mongoose.disconnect(), 1000);
-})();
-
-// .catch((e) => {
-//     console.log("DB Error." + e);
-// });
 
 String.prototype.hashCode = function () {
     var hash = 0, i, chr;
@@ -51,7 +39,7 @@ function getHashFromFile(filePath) {
 }
 
 
-async function updateIndexRoute() {
+module.exports = async function updateIndexRoute() {
     let reload = false;
 
     let filesDisk = fs.readdirSync(path);
@@ -93,18 +81,20 @@ async function updateIndexRoute() {
 
     if (reload) {
         console.log("reloading route.js and swagger");
-        let routes = filesDisk.filter((file) => !fs.lstatSync(path + '/' + file).isDirectory())
-            .map((file) => `app.use('/api/${file.split('.')[0]}', require('./${file}'));`).join('\n');
+        setTimeout(() => {
+            let routes = filesDisk.filter((file) => !fs.lstatSync(path + '/' + file).isDirectory())
+                .map((file) => `app.use('/api/${file.split('.')[0]}', require('./${file}'));`).join('\n');
 
-        let content = `module.exports = function (app) {
-                    ${routes}
-                };`
+            let content = `module.exports = function (app) {
+            ${routes}
+        };`
 
-        fs.writeFile(indexPath, content, err => {
-            if (err)
-                console.error(err);
-        });
-        swaggerAutogen(outputFile, endpointsFiles, doc);
+            fs.writeFile(indexPath, content, err => {
+                if (err)
+                    console.error(err);
+            });
+            swaggerAutogen(outputFile, endpointsFiles, doc);
+        }, 1000);
     } else {
         console.log("skipping reload route.js and swagger");
     }

@@ -1,3 +1,3 @@
 module.exports = function (app) {
-                    app.use('/api/users', require('./users.js'));
-                };
+            app.use('/api/users', require('./users.js'));
+        };
