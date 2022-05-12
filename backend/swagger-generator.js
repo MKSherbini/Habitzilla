@@ -51,7 +51,6 @@ module.exports = async function updateIndexRoute() {
     console.log(filesDB);
     filesDB?.forEach(async (fileDB) => {
         let filePath = path + '/' + fileDB.filename;
-        if (fs.lstatSync(filePath).isDirectory()) return;
 
         if (_.includes(filesDisk, fileDB.filename)) {
             _.remove(newFilesDisk, (file) => file == fileDB.filename);
